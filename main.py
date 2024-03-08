@@ -3,6 +3,7 @@ from algoritmos.bfs import bfs
 from algoritmos.a_estrela import a_estrela
 from algoritmos.dijkstra import dijkstra
 from algoritmos.aux import vertice_caminho, no_caminho
+from algoritmos.ganancioso import ganancioso
 
 from problemas.labirinto import Labirinto
 from problemas.quebra_cabeca_de_8 import QuebraCabecaDe8
@@ -19,6 +20,7 @@ if __name__ == "__main__":
   #(qtd_estados_visitados, no_solucao) = bfs(problema)
   (qtd_estados_visitados, no_solucao) = a_estrela(problema)
   #(qtd_estados_visitados, no_solucao) = dijkstra(problema)
+  #(qtd_estados_visitados, no_solucao) = ganancioso(problema)
   
   if(no_solucao is None):
     print("Não houve solução ao problema")
