@@ -5,12 +5,6 @@ from algoritmos.dijkstra import dijkstra
 from algoritmos.aux import vertice_caminho, no_caminho
 from algoritmos.ganancioso import ganancioso
 
-from problemas.labirinto import Labirinto
-from problemas.quebra_cabeca_de_8 import QuebraCabecaDe8
-#from problemas.quebra_cabeca_de_4 import QuebraCabecaDe4
-from problemas.barqueiro import Barqueiro
-from problemas.labirinto2 import Labirinto2
-from problemas.braco import Braco
 from problemas.bracoteste import BracoT
 
 if __name__ == "__main__":
