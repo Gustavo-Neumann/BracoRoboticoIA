@@ -1,3 +1,4 @@
+import numpy as np
 from algoritmos.dfs import dfs
 from algoritmos.bfs import bfs
 from algoritmos.a_estrela import a_estrela
