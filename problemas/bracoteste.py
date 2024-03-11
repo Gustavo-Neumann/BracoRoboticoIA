@@ -7,19 +7,20 @@ from problemas.problema import Problema
 class BracoT(Problema):
   def __init__(self):
 
-    # o problema ta menor pra facilitar os testes
-    # mudar dps pra 10x4 com um espaco a mais pra o q o braco ta segurando
-
-
-    self.num_linhas = 6
+    
+    self.num_linhas = 10
 
     
     self.estado_inicial = np.array([40, "0", "0", "R",
-                                     "0", "0", "0", "|",
-                                     20, 50, "0", "|", 
-                                     30, "0", "0", "|",
                                      60, "0", "0", "|",
+                                     50, "0", "0", "|", 
+                                     30, "0", "0", "|",
+                                     20, "0", "0", "|",
                                      10, "0", "0", "|",
+                                    "0", "0", "0", "|",
+                                    "0", "0", "0", "|",
+                                    "0", "0", "0", "|",
+                                    "0", "0", "0", "|",
                                      "0"])
 
 
@@ -32,8 +33,7 @@ class BracoT(Problema):
     estado = no.estado
     maquina = ""
 
-  # o problema ta menor pra facilitar os testes
-  # mudar dps pra 10x4 com um espaco a mais pra o q o braco ta segurando 
+    # Imprime o problema no tamanho correto
     for i in range(self.num_linhas):
         for j in range(4):
             index = i * 4 + j
@@ -46,29 +46,25 @@ class BracoT(Problema):
 
   def contar_caixas(self,no):
     count = 0
-    index = 0
     for i in range(len(no.estado)):
-      if self.verificar_numero(no, index) and no.estado[i] != "0":
+      if self.verificar_numero(no, i) and no.estado[i] != "0":
         count += 1
-      index +=1
     return count
 
-#funcao precisa ter um numero % 3 = 0 de caixas pra funcionar
-#verifica se tem uma pilha formada em qualquer posicao
+# Funcao precisa ter um numero % 3 = 0 de caixas pra funcionar
+# Verifica se tem uma pilha formada em qualquer posicao
+# Aceita apenas se as pilhas estiverem formadas a esquerda
   def testar_objetivo(self, no):
     estado = no.estado
     count_pilhas = 0
     pilhas_possiveis = np.ceil(self.contar_caixas(no) /3) 
-    #print(pilhas_possiveis)
-    for i in range(self.num_linhas):
-      for j in range(4):
-        index = i * 4 + j
-        if self.verificar_numero(no, index):
-          if self.verificar_numero(no, index +1) and self.verificar_numero(no, index + 2):
-           # valido ou nao ter [30,30,20] ?? >= ou >
-            if int(estado[index]) >= int(estado[index + 1]) and int(estado[index + 1] >= estado[index + 2]):
-              count_pilhas += 1
+    
+    for index, i in enumerate(range(len(no.estado)-1)):
+      if index in range(int(pilhas_possiveis * 4)) and self.verificar_numero(no, index) and self.verificar_numero(no, index +1) and self.verificar_numero(no, index + 2):
+        if int(estado[index]) >= int(estado[index + 1]) and int(estado[index + 1] >= estado[index + 2]):
+            count_pilhas += 1
     return count_pilhas == pilhas_possiveis
+
 
   def verificar_numero(self, no, index):
     estado = no.estado
@@ -86,7 +82,7 @@ class BracoT(Problema):
     # encontra a posição do R (Braco)
     posicao = np.where(estado == "R")[0][0]
 
-    expansoes = [self._direita, self._esquerda, self._agarrar, self._soltar, self._esquerda2, self._direita2]
+    expansoes = [self._direita, self._esquerda, self._agarrar, self._soltar, self._esquerda2, self._direita2, self._esquerda3, self._esquerda4, self._direita3, self._direita4]
     random.shuffle(expansoes)
     for expansao in expansoes:
       no_sucessor = expansao(posicao, no)
@@ -95,9 +91,9 @@ class BracoT(Problema):
     return nos_sucessores
 
   # limitantes
-  # o formato ta assim, o braco so se move na quarta coluna
-  # as pilhas de caixas sao as linhas da esquerda pra direita
-  # o ultimo espaco e o q o braco ta segurando
+  # O formato ta assim, o braco so se move na quarta coluna
+  # As pilhas de caixas sao as linhas da esquerda pra direita
+  # O ultimo espaco (40) é o que o braco esta segurando
   # | 00 | 01 | 02 | 03 |
   # | 04 | 05 | 06 | 07 |
   # | 08 | 09 | 10 | 11 |
@@ -114,7 +110,7 @@ class BracoT(Problema):
 
   def _esquerda(self, posicao, no):
     # movimento para esquerda fazendo swap apenas na ultima coluna
-    if posicao not in [0, 1, 2, 3] and no.estado[posicao - 4] == "|":
+    if posicao not in [3]:
       
       sucessor = np.copy(no.estado)
       sucessor[posicao] = sucessor[posicao - 4]
@@ -125,7 +121,7 @@ class BracoT(Problema):
 
   def _esquerda2(self, posicao, no):
     # movimento para esquerda fazendo swap apenas na ultima coluna
-    if posicao not in [3, 7, 11] and no.estado[posicao - 8] == "|":
+    if posicao not in [3, 7]:
 
       sucessor = np.copy(no.estado)
       sucessor[posicao] = sucessor[posicao - 8]
@@ -134,9 +130,31 @@ class BracoT(Problema):
     else:
       None
 
+  def _esquerda3(self, posicao, no):
+    # movimento para esquerda fazendo swap apenas na ultima coluna
+    if posicao not in [3, 7, 11]:
+
+      sucessor = np.copy(no.estado)
+      sucessor[posicao] = sucessor[posicao - 12]
+      sucessor[posicao - 12] = "R"
+      return No(sucessor, no, "⬅️⬅️⬅️")
+    else:
+      None
+
+  def _esquerda4(self, posicao, no):
+    # movimento para esquerda fazendo swap apenas na ultima coluna
+    if posicao not in [3, 7, 11, 15]:
+
+      sucessor = np.copy(no.estado)
+      sucessor[posicao] = sucessor[posicao - 16]
+      sucessor[posicao - 16] = "R"
+      return No(sucessor, no, "⬅️➡️⬅️⬅️")
+    else:
+      None
+
   def _direita(self, posicao, no):
     # movimento para direita fazendo swap apenas na ultima coluna
-    if posicao not in [21, 22, 23, 24] and no.estado[posicao + 4] == "|":
+    if posicao not in [39]:
       
       sucessor = np.copy(no.estado)
       sucessor[posicao] = sucessor[posicao + 4]
@@ -147,7 +165,7 @@ class BracoT(Problema):
 
   def _direita2(self, posicao, no):
     # movimento para direita fazendo swap apenas na ultima coluna
-    if posicao not in [23,19,15] and no.estado[posicao + 8] == "|":
+    if posicao not in [35,39]:
 
       sucessor = np.copy(no.estado)
       sucessor[posicao] = sucessor[posicao + 8]
@@ -156,23 +174,43 @@ class BracoT(Problema):
     else:
       None
 
-  # funcao de agarrar feia q funciona
-  # ta tudo feio e com certeza tem um jeito melhor de fazer isso
-  # o "." representa um espaco vazio
+  def _direita3(self, posicao, no):
+    # movimento para direita fazendo swap apenas na ultima coluna
+    if posicao not in [39,35,31]:
+
+      sucessor = np.copy(no.estado)
+      sucessor[posicao] = sucessor[posicao + 12]
+      sucessor[posicao + 12] = "R"
+      return No(sucessor, no, "➡️➡️➡️")
+    else:
+      None
+
+  def _direita4(self, posicao, no):
+    # movimento para direita fazendo swap apenas na ultima coluna
+    if posicao not in [39,35,31,27]:
+
+      sucessor = np.copy(no.estado)
+      sucessor[posicao] = sucessor[posicao + 16]
+      sucessor[posicao + 16] = "R"
+      return No(sucessor, no, "➡️➡️➡️➡️")
+    else:
+      None
+
+
   def _agarrar(self, posicao, no):
-   
+
     if no.estado[-1] == "0":
       if no.estado[posicao - 3] != "0" and no.estado[posicao -2] == "0" and no.estado[posicao -1] == "0":
         sucessor = np.copy(no.estado)
         sucessor[-1] = no.estado[posicao - 3]
         sucessor[posicao - 3] = "0"
-        return No(sucessor, no, "Segurou BASE")
-      elif no.estado[posicao - 3] != "0":
+        return No(sucessor, no, "Segurou BASE") 
+      elif no.estado[posicao - 3] != "0" and no.estado[posicao -2] != "0" and no.estado[posicao -1] == "0":
         sucessor = np.copy(no.estado)
         sucessor[-1] = no.estado[posicao - 2]
         sucessor[posicao - 2] = "0"
         return No(sucessor, no, "Segurou MEIO")
-      
+  
     None
 
   
@@ -180,6 +218,7 @@ class BracoT(Problema):
     # verifica se tem algo nos dois primeiros espaços da pilha, se tiver coloca em cima
     # ["30","20","aqui"]
     if no.estado[-1] != "0":
+      
       if no.estado[posicao - 3] != "0" and no.estado[posicao -2] != "0" and no.estado[posicao -1] == "0":
         sucessor = np.copy(no.estado)
         sucessor[posicao - 1] = no.estado[-1]
@@ -188,7 +227,7 @@ class BracoT(Problema):
       # verifica se tem algo no primeiro espaco da pilha, se tiver coloca no espaco do 
       # meio (em cima do primeiro) 
       # ["30","aqui","0"]
-      elif no.estado[posicao - 3] != "0" and no.estado[posicao -2] == "0":
+      elif no.estado[posicao - 3] != "0" and no.estado[posicao -2] == "0" and no.estado[posicao - 1] == "0":
         sucessor = np.copy(no.estado)
         sucessor[posicao - 2] = no.estado[-1]
         sucessor[-1] = "0"
@@ -202,6 +241,8 @@ class BracoT(Problema):
         return No(sucessor, no, "Soltou BASE")
     else:
      None
+
+
 
   def custo(self, no, no_sucessor):
     valor_custo = 1
@@ -223,7 +264,7 @@ class BracoT(Problema):
     else:
       valor_custo += int(no.estado[-1]) / 10
       return valor_custo
-
+    
     
   def heuristica(self, no):
     estado = no.estado
@@ -232,16 +273,24 @@ class BracoT(Problema):
     for i in range(len(estado) -1):
       if self.verificar_numero(no, i):
         lista.append(int(estado[i]))
-    
+  
     soma = 0
   
     lista1 = np.sort(lista)[::-1]
-    
-    for i in range(len(lista)):
-      soma = soma + abs(lista1[i] - lista[i])
+
+
+    for i in range(len(estado)-1):
+      if self.verificar_numero(no, i):
+        for j in range(len(lista1)):
+          soma = soma + abs(i - j)
+  
 
     return soma
 
+  
 
-    
+
+
+  
+      
       
